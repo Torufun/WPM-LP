@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WPMtracker — 英語リーディング速度測定</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Noto+Sans+JP:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: #f5f5f3;
+    color: #1a1a18;
+    min-height: 100vh;
+  }
+
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 2.5rem;
+    background: #fff;
+    border-bottom: 0.5px solid rgba(0,0,0,0.12);
+    position: sticky; top: 0; z-index: 10;
+  }
+
+  .brand {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 20px;
+    letter-spacing: -0.5px;
+    color: #1a1a18;
+  }
+
+  .brand span { color: #1D9E75; }
+
+  .nav-badge {
+    font-size: 11px;
+    background: #E1F5EE;
+    color: #0F6E56;
+    padding: 4px 10px;
+    border-radius: 100px;
+    font-weight: 500;
+  }
+
+  .hero {
+    background: #fff;
+    padding: 5rem 2.5rem 4rem;
+    text-align: center;
+    border-bottom: 0.5px solid rgba(0,0,0,0.12);
+  }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #0F6E56;
+    background: #E1F5EE;
+    padding: 6px 14px;
+    border-radius: 100px;
+    margin-bottom: 2rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(36px, 6vw, 64px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -2px;
+    margin-bottom: 1.25rem;
+    color: #1a1a18;
+  }
+
+  .hero h1 em { font-style: normal; color: #1D9E75; }
+
+  .hero-sub {
+    font-size: 17px;
+    color: #5a5a58;
+    font-weight: 300;
+    line-height: 1.7;
+    max-width: 520px;
+    margin: 0 auto 2.5rem;
+  }
+
+  .hero-sub strong { color: #1a1a18; font-weight: 500; }
+
+  .cta-group {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    background: #1D9E75;
+    color: #fff;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    font-family: 'Noto Sans JP', sans-serif;
+    cursor: pointer;
+    transition: background 0.15s;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .btn-primary:hover { background: #0F6E56; }
+
+  .btn-ghost {
+    background: transparent;
+    color: #5a5a58;
+    border: 0.5px solid rgba(0,0,0,0.25);
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: 'Noto Sans JP', sans-serif;
+    cursor: pointer;
+    transition: background 0.15s;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .btn-ghost:hover { background: #f5f5f3; }
+
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-bottom: 0.5px solid rgba(0,0,0,0.12);
+  }
+
+  .stat-item {
+    padding: 2rem;
+    text-align: center;
+    border-right: 0.5px solid rgba(0,0,0,0.12);
+    background: #f5f5f3;
+  }
+
+  .stat-item:last-child { border-right: none; }
+
+  .stat-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 32px;
+    font-weight: 500;
+    color: #1D9E75;
+    display: block;
+  }
+
+  .stat-label {
+    font-size: 13px;
+    color: #5a5a58;
+    margin-top: 4px;
+    display: block;
+    font-weight: 300;
+  }
+
+  .section {
+    padding: 4rem 2.5rem;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #1D9E75;
+    margin-bottom: 1rem;
+  }
+
+  .section h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 0.75rem;
+    line-height: 1.2;
+  }
+
+  .section-desc {
+    font-size: 15px;
+    color: #5a5a58;
+    font-weight: 300;
+    line-height: 1.8;
+    margin-bottom: 2.5rem;
+    max-width: 600px;
+  }
+
+  .how-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+  }
+
+  .step-card {
+    background: #fff;
+    border: 0.5px solid rgba(0,0,0,0.12);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+
+  .step-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 36px;
+    font-weight: 400;
+    color: #9FE1CB;
+    line-height: 1;
+    margin-bottom: 1rem;
+  }
+
+  .step-title { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+
+  .step-body {
+    font-size: 13px;
+    color: #5a5a58;
+    font-weight: 300;
+    line-height: 1.7;
+  }
+
+  .level-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 8px;
+    margin-bottom: 1.5rem;
+  }
+
+  .level-card {
+    background: #fff;
+    border: 0.5px solid rgba(0,0,0,0.12);
+    border-radius: 8px;
+    padding: 0.75rem 0.5rem;
+    text-align: center;
+  }
+
+  .level-tag {
+    font-size: 10px;
+    font-weight: 500;
+    padding: 2px 7px;
+    border-radius: 100px;
+    display: inline-block;
+    margin-bottom: 6px;
+  }
+
+  .level-wcpm {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    display: block;
+    margin-bottom: 2px;
+    color: #1a1a18;
+  }
+
+  .level-name-jp { font-size: 10px; color: #5a5a58; font-weight: 300; }
+
+  .level-sub { font-size: 9px; color: #aaa; font-weight: 300; margin-top: 1px; display: block; }
+
+  .divider { border: none; border-top: 0.5px solid rgba(0,0,0,0.12); }
+
+  .feature-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+  }
+
+  .feature-item { display: flex; gap: 12px; align-items: flex-start; }
+
+  .feature-icon {
+    width: 36px;
+    height: 36px;
+    background: #E1F5EE;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .feature-icon svg { width: 18px; height: 18px; }
+
+  .feature-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+
+  .feature-desc { font-size: 13px; color: #5a5a58; font-weight: 300; line-height: 1.65; }
+
+  /* ── Pain section ── */
+  .pain-section {
+    background: #fff;
+    border-top: 0.5px solid rgba(0,0,0,0.12);
+    border-bottom: 0.5px solid rgba(0,0,0,0.12);
+    padding: 4rem 2.5rem;
+  }
+  .pain-inner { max-width: 860px; margin: 0 auto; }
+  .pain-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-top: 2rem; }
+  .pain-card {
+    background: #f5f5f3; border-radius: 12px; padding: 1.25rem 1.5rem;
+    border-left: 3px solid rgba(0,0,0,0.08);
+  }
+  .pain-q { font-size: 20px; margin-bottom: 8px; }
+  .pain-text { font-size: 13px; color: #5a5a58; font-weight: 300; line-height: 1.7; }
+
+  /* ── Solution section ── */
+  .solution-section {
+    background: #f5f5f3;
+    border-bottom: 0.5px solid rgba(0,0,0,0.12);
+    padding: 4rem 2.5rem;
+  }
+  .solution-inner { max-width: 860px; margin: 0 auto; }
+  .solution-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; margin-top: 2rem; }
+  .solution-card {
+    background: #fff; border-radius: 12px; padding: 1.25rem 1.5rem;
+    border: 0.5px solid rgba(0,0,0,0.08);
+  }
+  .sol-before { font-size: 11px; font-weight: 500; color: #993C1D; margin-bottom: 6px; }
+  .sol-text { font-size: 13px; line-height: 1.65; }
+  .sol-text.before { color: #5a5a58; font-weight: 300; }
+  .sol-text.after { color: #085041; font-weight: 500; }
+  .sol-arrow { font-size: 18px; color: #1D9E75; margin: 10px 0; text-align: center; }
+
+  /* ── Desire section ── */
+  .desire-section {
+    background: #E1F5EE;
+    border-top: 0.5px solid rgba(0,0,0,0.08);
+    border-bottom: 0.5px solid rgba(0,0,0,0.08);
+    padding: 4rem 2.5rem;
+  }
+  .desire-inner { max-width: 860px; margin: 0 auto; text-align: center; }
+  .desire-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-top: 2rem; text-align: left; }
+  .desire-card {
+    background: #fff; border-radius: 12px; padding: 1.25rem 1.5rem;
+    border: 0.5px solid rgba(0,0,0,0.08);
+  }
+  .desire-icon { font-size: 24px; margin-bottom: 10px; }
+  .desire-title { font-size: 14px; font-weight: 500; margin-bottom: 8px; line-height: 1.4; }
+  .desire-body { font-size: 13px; color: #5a5a58; font-weight: 300; line-height: 1.7; }
+
+  .cta-block {
+    background: #E1F5EE;
+    border: 0.5px solid #9FE1CB;
+    border-radius: 12px;
+    padding: 3rem 2.5rem;
+    text-align: center;
+    margin: 0 2.5rem 4rem;
+  }
+
+  .cta-block h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: #085041;
+    margin-bottom: 0.75rem;
+  }
+
+  .cta-block p { font-size: 15px; color: #0F6E56; font-weight: 300; margin-bottom: 1.75rem; }
+
+  footer {
+    padding: 2rem 2.5rem;
+    border-top: 0.5px solid rgba(0,0,0,0.12);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: #5a5a58;
+    background: #fff;
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="brand">WPM<span>tracker</span></div>
+  <div class="nav-badge">無料で始める</div>
+</nav>
+
+<section class="hero">
+  <div class="hero-eyebrow">
+    <span>●</span> 英語力をリアルタイムで測定
+  </div>
+  <h1>あなたは<span style="font-family:'DM Mono',monospace;font-weight:500;">1</span>分間で<br><em>何語読めますか？</em></h1>
+  <p class="hero-sub">
+    AIがあなたの<strong>WPM（1分間で正確に読んだ語数）</strong>を測定。<br>
+    自分の現在の英語力を知ることが、上達への第一歩です。
+  </p>
+  <div class="cta-group">
+    <a href="wpm_tracker_test_and_results.html" class="btn-primary">今すぐ無料で測定する →</a>
+    <a href="#" class="btn-ghost">WPMとは？</a>
+  </div>
+</section>
+
+<div class="stats-bar">
+  <div class="stat-item">
+    <span class="stat-num">3分</span>
+    <span class="stat-label">測定にかかる時間</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num">9段階</span>
+    <span class="stat-label">Pre-A1〜B2-C1の9段階判定</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num">無料</span>
+    <span class="stat-label">登録不要で使える</span>
+  </div>
+</div>
+
+<!-- ── Pain points ── -->
+<div class="pain-section">
+  <div class="pain-inner">
+    <div class="section-label">こんな悩み、ありませんか？</div>
+    <h2 style="font-family:'Syne',sans-serif;font-size:26px;font-weight:700;letter-spacing:-0.5px;margin-bottom:0.5rem;">英語学習者が感じる<br>「見えない壁」</h2>
+    <div class="pain-grid">
+      <div class="pain-card">
+        <div class="pain-q">🏫</div>
+        <div class="pain-text">大学受験を控えているが、英語長文読解が苦手。読むスピードが遅く試験本番で時間がなくなってしまう。</div>
+      </div>
+      <div class="pain-card">
+        <div class="pain-q">📚</div>
+        <div class="pain-text">英語を見聞きしながら同時に理解することができない。自分の実力が正直わからない。</div>
+      </div>
+      <div class="pain-card">
+        <div class="pain-q">🎯</div>
+        <div class="pain-text">英検やTOEICのスコアはあるが、実際に英語を「速く・正確に」読めているかどうか自信がない。</div>
+      </div>
+      <div class="pain-card">
+        <div class="pain-q">✈️</div>
+        <div class="pain-text">英語圏への留学を検討している。留学先で困らないように今から準備をしたいが、何を重点的に学習すればよいのかわからない。</div>
+      </div>
+      <div class="pain-card">
+        <div class="pain-q">💼</div>
+        <div class="pain-text">就職を控えているので英語力に磨きをかけたい。仕事で使える英語力を身につけたいが、何をすれば最短距離でたどりつけるのかわからない。</div>
+      </div>
+      <div class="pain-card">
+        <div class="pain-q">📈</div>
+        <div class="pain-text">学習の成果が出ているのかどうか実感できない。モチベーションを保つ具体的な目標がほしい。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Solution ── -->
+<div class="solution-section">
+  <div class="solution-inner">
+    <div class="section-label" style="color:#0F6E56;">WPM trackerが解決します</div>
+    <h2 style="font-family:'Syne',sans-serif;font-size:26px;font-weight:700;letter-spacing:-0.5px;margin-bottom:0.75rem;">「なんとなく」を<br>数字に変える。</h2>
+    <p style="font-size:15px;color:#5a5a58;font-weight:300;line-height:1.85;max-width:600px;margin-bottom:0;">WPM（1分間に正確に読んだ語数）で測定することで、英語力の現在地が明確になります。6つの悩みに、WPMは具体的な答えを出します。</p>
+    <div class="solution-grid">
+      <div class="solution-card">
+        <div class="sol-before">🏫 大学受験・長文読解</div>
+        <div class="sol-text before">読むスピードが遅く、試験本番で時間がなくなる</div>
+        <div class="sol-arrow">↓</div>
+        <div class="sol-before" style="color:#0F6E56;">✅ WPMで解決</div>
+        <div class="sol-text after">目標WPMを設定し、音読トレーニングで速度を計画的に伸ばせる。「あと15 WPMでB1レベル」と数字で逆算できる</div>
+      </div>
+      <div class="solution-card">
+        <div class="sol-before">📚 同時理解・処理速度</div>
+        <div class="sol-text before">英語を見聞きしながら同時に理解できない</div>
+        <div class="sol-arrow">↓</div>
+        <div class="sol-before" style="color:#0F6E56;">✅ WPMで解決</div>
+        <div class="sol-text after">WPMが上がると脳内処理速度が上がり、読みながら意味を取る「同時理解」が自然にできるようになる</div>
+      </div>
+      <div class="solution-card">
+        <div class="sol-before">🎯 英検・TOEICスコアとの乖離</div>
+        <div class="sol-text before">スコアはあるが、実際に速く正確に読めているか不安</div>
+        <div class="sol-arrow">↓</div>
+        <div class="sol-before" style="color:#0F6E56;">✅ WPMで解決</div>
+        <div class="sol-text after">WPMと英検・CEFRの対照表で「スコアと実力のギャップ」がひと目で把握できる</div>
+      </div>
+      <div class="solution-card">
+        <div class="sol-before">✈️ 留学準備</div>
+        <div class="sol-text before">留学先で困らない英語力をつけたいが何から始めればよいかわからない</div>
+        <div class="sol-arrow">↓</div>
+        <div class="sol-before" style="color:#0F6E56;">✅ WPMで解決</div>
+        <div class="sol-text after">留学先の授業についていくにはWPM 140（B2）が目安。今の数値から逆算した準備計画が立てられる</div>
+      </div>
+      <div class="solution-card">
+        <div class="sol-before">💼 就職・ビジネス英語</div>
+        <div class="sol-text before">仕事で使える英語力を最短でつけたいが、何をすればいいかわからない</div>
+        <div class="sol-arrow">↓</div>
+        <div class="sol-before" style="color:#0F6E56;">✅ WPMで解決</div>
+        <div class="sol-text after">ビジネス文書をスムーズに読むにはWPM 125〜140が目安。現在地を測って最短ルートを明確にできる</div>
+      </div>
+      <div class="solution-card">
+        <div class="sol-before">📈 成果の実感・モチベーション</div>
+        <div class="sol-text before">学習の成果が出ているのか実感できない</div>
+        <div class="sol-arrow">↓</div>
+        <div class="sol-before" style="color:#0F6E56;">✅ WPMで解決</div>
+        <div class="sol-text after">定期測定でWPMの推移を記録。「先月より8 WPM上がった」という数字の変化がモチベーションを支える</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Desire ── -->
+<div class="desire-section">
+  <div class="desire-inner">
+    <div class="section-label" style="color:#085041;">WPMを伸ばすと、こう変わる</div>
+    <h2 style="font-family:'Syne',sans-serif;font-size:26px;font-weight:700;letter-spacing:-0.5px;margin-bottom:0.5rem;">英語が「読めない」から<br>「使える」に変わる瞬間。</h2>
+    <div class="desire-grid">
+      <div class="desire-card">
+        <div class="desire-icon">⚡</div>
+        <div class="desire-title">WPM 80〜 / A2<br>英語ニュースが読み始められる</div>
+        <div class="desire-body">BBCやCNNのやさしい記事を辞書なしで読めるようになります。英語が「インプット手段」になります。</div>
+      </div>
+      <div class="desire-card">
+        <div class="desire-icon">📝</div>
+        <div class="desire-title">WPM 125〜 / B1<br>TOEIC・英検の読解が楽になる</div>
+        <div class="desire-body">試験の長文問題を時間内に読み切れるようになります。スコアアップに直結するスキルです。</div>
+      </div>
+      <div class="desire-card">
+        <div class="desire-icon">🌍</div>
+        <div class="desire-title">WPM 140〜 / B2<br>英語で仕事・研究ができる</div>
+        <div class="desire-body">英語の論文・ビジネス文書・契約書を自然なスピードで処理できます。グローバルな場面で通用します。</div>
+      </div>
+      <div class="desire-card">
+        <div class="desire-icon">🏆</div>
+        <div class="desire-title">WPM 155〜 / B2-C1<br>英語が完全なツールになる</div>
+        <div class="desire-body">英語で考え、英語で情報を取る。英検1級・TOEIC 900点以上も視野に入るネイティブに近い読解力です。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">How it works</div>
+  <h2>たった<span style="font-family:'DM Mono',monospace;font-weight:400;">3</span>ステップで<br>英語レベルがわかる</h2>
+  <p class="section-desc">難しい設定は一切不要。パッセージを読んで、結果を確認するだけ。</p>
+  <div class="how-grid">
+    <div class="step-card">
+      <div class="step-num">01</div>
+      <div class="step-title">英文を音読する</div>
+      <div class="step-body">レベル別に用意されたパッセージを読みます。1分間タイマーがスタートします。</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">02</div>
+      <div class="step-title">理解度クイズに答える</div>
+      <div class="step-body">スピードだけでなく、正確な理解も重要。簡単な設問でWPMを算出します。</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">03</div>
+      <div class="step-title">スコアとレベルを確認</div>
+      <div class="step-body">WPM値とともに、CEFRに基づいたレベル（A1〜C2）を即時表示します。</div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<div class="section">
+  <div class="section-label">Level guide</div>
+  <h2>WPMで見る<br>英語レベルの目安</h2>
+  <p class="section-desc">ネイティブの大人は平均150〜170 WPM（音読時）。あなたは今どのあたりにいますか？</p>
+  <div class="level-grid">
+    <div class="level-card">
+      <span class="level-tag" style="background:#F1EFE8;color:#5F5E5A;">Pre-A1</span>
+      <span class="level-wcpm">0〜45</span>
+      <div class="level-name-jp">超初級</div>
+      <span class="level-sub">英検5級以下</span>
+    </div>
+    <div class="level-card">
+      <span class="level-tag" style="background:#FAECE7;color:#993C1D;">A1</span>
+      <span class="level-wcpm">45〜75</span>
+      <div class="level-name-jp">初級</div>
+      <span class="level-sub">英検5級〜4級</span>
+    </div>
+    <div class="level-card">
+      <span class="level-tag" style="background:#FAEEDA;color:#854F0B;">A1-A2</span>
+      <span class="level-wcpm">75〜80</span>
+      <div class="level-name-jp">初級〜初中級</div>
+      <span class="level-sub">英検3級/準2級</span>
+    </div>
+    <div class="level-card">
+      <span class="level-tag" style="background:#FAC775;color:#633806;">A2</span>
+      <span class="level-wcpm">80〜120</span>
+      <div class="level-name-jp">初中級</div>
+      <span class="level-sub">英検準2級〜2級</span>
+    </div>
+    <div class="level-card">
+      <span class="level-tag" style="background:#EAF3DE;color:#3B6D11;">A2-B1</span>
+      <span class="level-wcpm">120〜125</span>
+      <div class="level-name-jp">初中〜中級</div>
+      <span class="level-sub">英検2級</span>
+    </div>
+    <div class="level-card">
+      <span class="level-tag" style="background:#E6F1FB;color:#185FA5;">B1</span>
+      <span class="level-wcpm">125〜135</span>
+      <div class="level-name-jp">中級</div>
+      <span class="level-sub">英検2級〜準1級</span>
+    </div>
+    <div class="level-card">
+      <span class="level-tag" style="background:#C0DD97;color:#27500A;">B1-B2</span>
+      <span class="level-wcpm">135〜140</span>
+      <div class="level-name-jp">中〜中上級</div>
+      <span class="level-sub">英検2級/準1級</span>
+    </div>
+    <div class="level-card">
+      <span class="level-tag" style="background:#E1F5EE;color:#0F6E56;">B2</span>
+      <span class="level-wcpm">140〜155</span>
+      <div class="level-name-jp">中上級</div>
+      <span class="level-sub">英検準1級〜1級</span>
+    </div>
+    <div class="level-card">
+      <span class="level-tag" style="background:#9FE1CB;color:#085041;">B2-C1</span>
+      <span class="level-wcpm">155〜160</span>
+      <div class="level-name-jp">上級</div>
+      <span class="level-sub">英検1級</span>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<div class="section">
+  <div class="section-label">Features</div>
+  <h2>WPMtrackerが<br>選ばれる理由</h2>
+  <div style="margin-bottom:2.5rem;"></div>
+  <div class="feature-list">
+    <div class="feature-item">
+      <div class="feature-icon">
+        <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="9" cy="9" r="7" stroke="#1D9E75" stroke-width="1.5"/>
+          <path d="M6 9l2 2 4-4" stroke="#1D9E75" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="feature-title">AI音声認識による精度の高いWPM算出</div>
+        <div class="feature-desc">AIがあなたの音読をリアルタイムで解析し、正確なWPMを自動計測します</div>
+      </div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">
+        <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 2v4M9 12v4M2 9h4M12 9h4" stroke="#1D9E75" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="9" cy="9" r="3" stroke="#1D9E75" stroke-width="1.5"/>
+        </svg>
+      </div>
+      <div>
+        <div class="feature-title">継続的なスコア記録 <span style="font-size:10px;background:#FAEEDA;color:#854F0B;padding:2px 7px;border-radius:100px;font-weight:500;vertical-align:middle;">有料版</span></div>
+        <div class="feature-desc">測定を重ねるたびに成長グラフで可視化。モチベーションが続く</div>
+      </div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">
+        <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 14l4-4 3 3 5-7" stroke="#1D9E75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="feature-title">多様なパッセージ</div>
+        <div class="feature-desc">ナレーティブ・フィクション・ノンフィクションなど、ジャンル別に選べる英文素材</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="cta-block">
+  <h2>さあ、自分の英語を測ってみよう</h2>
+  <p>登録不要・完全無料。今すぐスタートできます。</p>
+  <a href="wpm_tracker_test_and_results.html" class="btn-primary">無料で測定を始める →</a>
+</div>
+
+<footer>
+  <div class="brand" style="font-size:16px;">WPM<span style="color:#1D9E75;">tracker</span></div>
+  <div style="display:flex;gap:20px;align-items:center;">
+    <a href="wpm_tracker_landing_page_elementary.html" style="font-size:12px;color:#5a5a58;text-decoration:none;">お子さま向けページはこちら →</a>
+    <span style="font-size:13px;color:#5a5a58;">英語リーディング速度測定ツール</span>
+  </div>
+</footer>
+
+</body>
+</html>
